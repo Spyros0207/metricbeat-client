@@ -1,0 +1,36 @@
+---
+- name: deploys metricbeat on host
+  hosts: 192.168.1.196
+  gather_facts: false
+  tasks:
+
+    - name:
+      rpm_key:
+        state: present
+        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    
+    - name: This command will copy existing repo for the /etc/yum.repos.d/elasticsearch.repo
+      copy:
+        src: files/elasticsearch.repo
+        dest: /etc/yum.repos.d/elasticsearch.repo
+        remote_src: no
+ 
+    - name: installing metricbeat using yum
+      yum:
+        name: metricbeat
+        state: latest
+    
+    - name: This command will copy existing configutations for the /etc/metricbeat/metricbeat.yml
+      copy:
+        src: files/metricbeat.yml
+        dest: /etc/metricbeat/metricbeat.yml
+        remote_src: no
+
+    - name: starts metricbeat
+      service:
+        name: metricbeat
+        state: started
+
+    - name: metricbeat setup
+      shell: 
+        cmd: "metricbeat setup"
